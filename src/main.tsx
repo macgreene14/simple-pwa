@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -10,4 +9,10 @@ if ("serviceWorker" in navigator) {
     .catch((err) => console.log("Service Worker Registration Failed:", err));
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(rootElement as HTMLElement).render(<App />);

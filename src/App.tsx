@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { addTodo, getTodos, deleteTodo, updateTodo } from "./db";
-import "./App.css";
 
-export default function App() {
-  const [todos, setTodos] = useState([]);
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
+
+const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
 
   useEffect(() => {
@@ -12,39 +17,40 @@ export default function App() {
 
   const loadTodos = async () => {
     const storedTodos = await getTodos();
-    setTodos(storedTodos);
+    setTodos(
+      storedTodos.filter((todo) => typeof todo.id === "number") as Todo[]
+    );
   };
 
   const handleAdd = async () => {
     if (!newTodo.trim()) return;
-    const todo = { text: newTodo, completed: false };
+    const todo: Todo = { id: Date.now(), text: newTodo, completed: false };
     await addTodo(todo);
     setNewTodo("");
     loadTodos();
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     await deleteTodo(id);
     loadTodos();
   };
 
-  const toggleComplete = async (id) => {
+  const toggleComplete = async (id: number) => {
     const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
     await updateTodo(id, { completed: !todo.completed });
     loadTodos();
   };
 
   return (
-    <div className="app">
-      <h1>Todo PWA</h1>
-      <div className="input-container">
-        <input
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          placeholder="Add a task..."
-        />
-        <button onClick={handleAdd}>Add</button>
-      </div>
+    <div>
+      <h1>To-Do App</h1>
+      <input
+        value={newTodo}
+        onChange={(e) => setNewTodo(e.target.value)}
+        placeholder="Add a task..."
+      />
+      <button onClick={handleAdd}>Add</button>
       <ul>
         {todos.map((todo) => (
           <li key={todo.id} className={todo.completed ? "completed" : ""}>
@@ -55,4 +61,5 @@ export default function App() {
       </ul>
     </div>
   );
-}
+};
+export default App;
